@@ -51,13 +51,21 @@ Aplikasi ini terhubung langsung secara dua arah (*bi-directional*) dengan agen k
 - **Windows / macOS / Linux**.
 - Build Tools C++ untuk kompilasi `node-pty` (di Windows otomatis terpasang jika menggunakan Node.js installer standar atau Visual Studio Build Tools).
 
-### 2. Instalasi Dependensi
+### 2. Menghubungkan atau Membuat Tim Agen Baru
+Bagi Anda yang baru pertama kali meng-clone repositori ini:
+- Buka file [AGENT_SETUP_PROMPT.md](./AGENT_SETUP_PROMPT.md).
+- Salin seluruh prompt di dalamnya dan kirimkan ke AI Assistant / Coding Agent Anda (Antigravity, Codex CLI, Claude Code, Cursor, dll.).
+- AI akan secara otomatis:
+  - **Jika sudah punya agen**: Menghubungkan file agen dan skill lokal Anda ke aplikasi 3D ini.
+  - **Jika belum punya agen**: Melakukan wawancara singkat untuk merancang tim agen spesialis kustom sesuai kebutuhan tech stack Anda.
+
+### 3. Instalasi Dependensi
 Buka terminal di root direktori proyek, lalu jalankan:
 ```bash
 npm install
 ```
 
-### 3. Menjalankan Aplikasi
+### 4. Menjalankan Aplikasi
 
 #### Mode Standar (Produksi):
 ```bash

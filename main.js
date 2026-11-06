@@ -13,6 +13,9 @@ const GLOBAL_AGENTS_DIR =
   process.env.ANTIGRAVITY_AGENTS_DIR || path.join(os.homedir(), '.agents', 'agents');
 const ACTIVE_STATE_PATH = path.join(GLOBAL_AGENTS_DIR, 'active-state.json');
 const ANTIGRAVITY_BRAIN_DIR = path.join(os.homedir(), '.gemini', 'antigravity-cli', 'brain');
+const CODEX_HOME = path.join(os.homedir(), '.codex');
+const CODEX_HISTORY_PATH = path.join(CODEX_HOME, 'history.jsonl');
+const CODEX_SESSIONS_DIR = path.join(CODEX_HOME, 'sessions');
 
 /**
  * Mendapatkan daftar ID seluruh agen yang ada di folder C:\Users\HP\.agents\agents secara dinamis
@@ -400,6 +403,143 @@ const createWindow = () => {
     }
   } catch (err) {
     console.warn('[TranscriptWatcher] Info:', err.message);
+  }
+
+  // Watcher 4A: Tangkap input prompt baru secara INSTAN saat User menekan Enter di Codex CLI (Thinking Phase)
+  let codexIdleTimer = null;
+  let lastKnownCodexHistoryLine = '';
+
+  function handleCodexPromptSubmit() {
+    try {
+      if (!fs.existsSync(CODEX_HISTORY_PATH)) return;
+      const stats = fs.statSync(CODEX_HISTORY_PATH);
+      const readSize = Math.min(stats.size, 4096);
+      const fd = fs.openSync(CODEX_HISTORY_PATH, 'r');
+      const buffer = Buffer.alloc(readSize);
+      fs.readSync(fd, buffer, 0, readSize, Math.max(0, stats.size - readSize));
+      fs.closeSync(fd);
+
+      const lines = buffer.toString('utf8').trim().split(/\r?\n/);
+      const lastLine = lines[lines.length - 1];
+      if (!lastLine || lastLine === lastKnownCodexHistoryLine) return;
+      lastKnownCodexHistoryLine = lastLine;
+
+      let taskDesc = 'Codex: Sedang berpikir & memproses instruksi...';
+      try {
+        const parsed = JSON.parse(lastLine);
+        if (parsed.text) {
+          const preview = parsed.text.length > 35 ? parsed.text.slice(0, 35) + '...' : parsed.text;
+          taskDesc = `Codex Berpikir: "${preview}"`;
+        }
+      } catch (_e) {}
+
+      const currentState = readActiveState();
+      if (currentState.activeAgents?.['main-orchestrator']) {
+        currentState.activeAgents['main-orchestrator'] = {
+          isWorking: true,
+          task: taskDesc,
+        };
+        writeActiveState(currentState);
+        broadcastAgentState();
+        console.log('[Codex Instant] Prompt diterima -> Main Agent seketika ke meja tengah:', taskDesc);
+      }
+      if (codexIdleTimer) {
+        clearTimeout(codexIdleTimer);
+        codexIdleTimer = null;
+      }
+    } catch (_e) {}
+  }
+
+  try {
+    if (fs.existsSync(CODEX_HOME)) {
+      fs.watch(CODEX_HOME, { recursive: false }, (_eventType, filename) => {
+        if (filename && filename.toLowerCase() === 'history.jsonl') {
+          handleCodexPromptSubmit();
+        }
+      });
+      if (fs.existsSync(CODEX_HISTORY_PATH)) {
+        fs.watchFile(CODEX_HISTORY_PATH, { interval: 80 }, () => {
+          handleCodexPromptSubmit();
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('[CodexHistoryWatcher] Info:', err.message);
+  }
+
+  // Watcher 4B: Pantau respons stream & tool execution Codex dari folder sessions rollout (*.jsonl)
+  let codexWatchTimeout = null;
+  try {
+    if (fs.existsSync(CODEX_SESSIONS_DIR)) {
+      fs.watch(CODEX_SESSIONS_DIR, { recursive: true }, (_eventType, filename) => {
+        if (!filename || !filename.endsWith('.jsonl')) return;
+        clearTimeout(codexWatchTimeout);
+        codexWatchTimeout = setTimeout(() => {
+          try {
+            const fullPath = path.join(CODEX_SESSIONS_DIR, filename);
+            if (!fs.existsSync(fullPath)) return;
+            const stats = fs.statSync(fullPath);
+            const readSize = Math.min(stats.size, 16384);
+            const fd = fs.openSync(fullPath, 'r');
+            const buffer = Buffer.alloc(readSize);
+            fs.readSync(fd, buffer, 0, readSize, Math.max(0, stats.size - readSize));
+            fs.closeSync(fd);
+
+            const tailLines = buffer.toString('utf8').trim().split(/\r?\n/);
+            const lastLine = tailLines[tailLines.length - 1];
+            if (!lastLine) return;
+            const event = JSON.parse(lastLine);
+
+            const currentState = readActiveState();
+            let changed = false;
+
+            const isStarting = event.type === 'event_msg' && event.payload?.type === 'task_started';
+            const isWorkingResponse = event.type === 'response_item';
+            const isComplete = event.type === 'event_msg' && event.payload?.type === 'task_complete';
+
+            if (isStarting || isWorkingResponse) {
+              if (currentState.activeAgents['main-orchestrator']) {
+                currentState.activeAgents['main-orchestrator'] = {
+                  isWorking: true,
+                  task: 'Codex CLI: Sedang mengeksekusi tugas / merespons',
+                };
+                changed = true;
+              }
+              if (codexIdleTimer) {
+                clearTimeout(codexIdleTimer);
+                codexIdleTimer = null;
+              }
+            }
+
+            if (isComplete || isWorkingResponse) {
+              if (codexIdleTimer) clearTimeout(codexIdleTimer);
+              const idleDelay = isComplete ? 8000 : 15000;
+              codexIdleTimer = setTimeout(() => {
+                const latestState = readActiveState();
+                if (latestState.activeAgents?.['main-orchestrator']?.isWorking) {
+                  latestState.activeAgents['main-orchestrator'] = {
+                    isWorking: false,
+                    task: '',
+                  };
+                  writeActiveState(latestState);
+                  broadcastAgentState();
+                  console.log('[Auto-Idle] Main Orchestrator kembali ke Ruang CEO setelah aktivitas Codex selesai');
+                }
+              }, idleDelay);
+            }
+
+            if (changed) {
+              writeActiveState(currentState);
+              broadcastAgentState();
+            }
+          } catch (_e) {
+            // Abaikan jika JSON line sedang ditulis parsial
+          }
+        }, 120);
+      });
+    }
+  } catch (err) {
+    console.warn('[CodexWatcher] Info:', err.message);
   }
 
   mainWindow.on('closed', () => {
