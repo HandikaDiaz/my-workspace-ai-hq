@@ -1,0 +1,93 @@
+================================================================================
+AI ORBITAL COMMAND SATELLITE OFFICE (LEVEL 5) — ULTRA-DETAILED 3D TECHNICAL PROMPT
+Lokasi File Target: D:\Project\My Workspace\src\office3d.js
+Referensi Visual: public/NewSatelitOffice.jpg & public/SatelliteOfficeTopView.png
+Pipeline Grafis: Three.js PBR + CatmullRom Procedural Cables + GLTF/Asset Pipeline
+================================================================================
+
+1. Ringkasan Visi & Standar Kualitas (Ultra-Detailed Sci-Fi Aesthetic):
+   Mengubah markas kantor 3D Three.js menjadi stasiun komando satelit AI ultra-detail
+   di Low Earth Orbit (LEO). Setiap sudut ruangan harus memiliki detail mikro yang terasa
+   hidup: lekukan ergonomis, kabel fleksibel melingkar di lantai, percikan api/listrik dinamis,
+   pipa uap pendingin kuantum, dan hologram berlapis yang berputar lembut.
+
+2. Detail Mikro Perabotan & Geometri Ruangan (Micro-Details & Ergonomics):
+   - Kursi Pilot & Workstation Operator:
+     * Bukan sekadar balok kaku; kursi memiliki lekukan sandaran ergonomis (curved mesh),
+       headrest berkontur, armrest ganda, dan roda silinder kecil di bawahnya.
+     * Workstation memiliki bezel monitor tipis, keyboard bercahaya backlit neon,
+       dan terminal touchpad holografis.
+   - Panel & Hiasan Dinding Futuristik (Wall Paneling & Gaskets):
+     * Dinding tidak rata polos; dilengkapi panel pelindung bertingkat (extruded sci-fi wall panels),
+       alur seamlines, ventilasi udara heksagonal, dan strip lampu darurat LED.
+     * Pintu sekat airlock memiliki engsel silinder hidrolik ganda, keypad akses sidik jari,
+       serta garis peringatan hazard diagonal kuning-hitam bertekstur.
+   - Pipa & Kabel Fisik Kusut (Dangling & Tangled Catmull-Rom Conduit Cables):
+     * Menggunakan `THREE.CatmullRomCurve3` & `THREE.TubeGeometry` untuk membuat bundel kabel
+       data dan pipa daya fleksibel yang melengkung alami keluar dari rak server,
+       menjalar kusut di sudut lantai, dan menancap ke bagian bawah meja rakit tengah.
+     * Sebagian kabel memiliki cincin penjepit (cable clamps) dan indikator pulsa data neon.
+
+3. Efek Partikel Dinamis, Percikan Listrik & Uap (VFX & Dynamic Sparks):
+   - Percikan Api & Listrik (Electric Arcing & Welding Sparks):
+     * Pada lengan robotik meja tengah: Saat ada agen bekerja (`isWorking: true`),
+       ujung lengan robot menembakkan partikel percikan api acak (particle fountain)
+       berwarna biru-putih dan kuning ke titik fokus hologram, memantulkan cahaya dinamis.
+     * Di area server & airlock: Efek kedipan percikan listrik mikroskopis berkala
+       pada panel daya bertegangan tinggi.
+   - Uap Pendingin Kuantum (Cryogenic Vapor / Steam Venting):
+     * Partikel asap/uap transparan lembut (`THREE.Points` / Sprite alpha) yang mengepul
+       perlahan dari ventilasi rak server kuantum ke arah atas, mensimulasikan pendingin
+       nitrogen cair superkonduktor.
+
+4. Hologram Berlapis & Interaktif (Layered Holographic Centerpiece):
+   - Central Quantum Core (Meja Rakit Utama):
+     * Hologram utama bukan bola biasa; terdiri dari 3 layer konsentris yang berotasi
+       dengan kecepatan dan sumbu berbeda:
+       1) Layer inti: Bola oktahedron berdenyut (breathing glow shader).
+       2) Layer data: Cincin Torus berputar dengan tekstur garis koordinat data.
+       3) Layer luar: Partikel orbit kuantum yang melayang mengitari inti.
+     * Blueprint 3D melayang di atas meja developer: kubus wireframe yang berputar
+       dengan garis pindaian laser (scanner beam plane) yang naik-turun.
+
+5. Lingkungan Kosmik 3D Luar Jendela (Celestial Orbit Vista):
+   - Planet Bumi 3D (The Blue Marble):
+     * Bola besar di latar belakang luar jendela stasiun dengan tekstur benua, lautan,
+       lapisan awan berputar independen, dan efek rim atmosphere glowing biru tipis.
+   - Bulan Kawah 3D & Planet Kejauhan:
+     * Bulan dengan kawah realistis yang tampak melintas di horizon.
+     * 2.500+ bintang kosmik dengan variasi magnitudo kedipan dan kabut nebula kosmik halus.
+   - Pencahayaan Matahari Surya (Space Sun Flare & Hard Shadows):
+     * Cahaya directional terik matahari orbit yang menciptakan bayangan logam tajam
+       di atas lantai stasiun satelit, kontras dengan interior berpendar neon.
+
+6. Animasi Hidup di Seluruh Stasiun (Ambient Life Animations):
+   - Lengan Robotik 3 Sumbu:
+     * Memiliki animasi inverse kinematics / rotasi multi-joint yang mengarah dinamis
+       ke hologram saat bekerja, dan posisi retract/lipat rapi saat idle.
+   - Jalur Sirkuit Lantai (Animated Pulse Shader):
+     * Garis neon di lantai tidak statis, melainkan memiliki gelombang cahaya pulsa
+       (`sin(time - distance)`) yang mengalir dari rak server menuju reaktor tengah.
+   - Kipas Ventilasi & LED Status:
+     * Kipas ventilasi berputar di balik kisi-kisi dinding server room.
+     * Lampu LED array berkedip acak hijau, kuning, dan biru pada panel instrumen.
+
+7. Sistem Atap Adaptif Dinamis (Dynamic Adaptive Ceilings & Observation Windows):
+   - Mode Isometric Overview (Kamera Atas):
+     * Atap stasiun otomatis disembunyikan (`ceilingGroup.visible = false`) agar pengguna
+       dapat melihat seluruh tata ruang lantai, pergerakan agen, dan interior stasiun
+       secara cutaway dari atas tanpa terhalang.
+   - Mode First-Person Perspective (Kamera FPS / Visor HUD Commander Diaz):
+     * Begitu kamera beralih ke FPS, atap stasiun otomatis dimunculkan (`ceilingGroup.visible = true`).
+     * Struktur Plafon Futuristik: Dilengkapi balok rangka titanium, saluran pendingin udara (air ducts),
+       kisi lampu LED linier putih-cyan lembut yang tertanam di plafon, dan kubah skylight kaca.
+     * Suasana Ruangan Tertutup Nyata: Pengguna benar-benar merasa berada di dalam modul stasiun satelit
+       tertutup kedap udara yang melayang di antariksa.
+     * Jendela Kaca Panoramik: Dari dalam stasiun yang beratap tersebut, pandangan ke arah luar jendela
+       tetap memperlihatkan lengkungan Planet Bumi biru raksasa, bulan, dan bintang dengan sangat sinematik.
+
+8. Integrasi Sistem & Arsitektur Kode:
+   - Tetap mempertahankan performa 60 FPS pada Electron dengan geometry instancing / texture sharing.
+   - Kontrol WASD Commander Diaz, Auto-Discovery 10 agen, sistem klik mouse raycaster,
+     dan timer auto-idle 15 detik tetap beroperasi 100% mulus tanpa regresi.
+================================================================================

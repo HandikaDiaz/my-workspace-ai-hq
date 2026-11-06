@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self';">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Workspace — 3D Space AI Headquarters</title>
+  <link rel="stylesheet" href="vendor/xterm/xterm.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- ========================================================
+         TOP MAIN WINDOW HEADER
+         ======================================================== -->
+    <header class="main-titlebar">
+      <div class="brand-group">
+        <div class="brand-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M12 3a9 9 0 0 1 9 9"></path>
+            <circle cx="12" cy="12" r="3"></circle>
+          </svg>
+        </div>
+        <span class="brand-title">My Workspace</span>
+        <span class="folder-pill" id="folder-pill">🌌 SPACE AI HQ</span>
+      </div>
+
+      <!-- 3D Space Office Toolbar -->
+      <div class="office-toolbar">
+        <button class="hud-btn roster-btn" id="btn-toggle-roster" title="Buka Daftar 9 Custom Agents (1 Main + 8 Sub-Agent)">
+          <span>🤖 Tim Agen</span>
+          <span class="count-badge" id="toolbar-agent-count">9</span>
+        </button>
+
+        <button class="hud-btn assemble-btn" id="btn-toggle-assemble" title="Panggil Semua 9 Agen ke Meja Rakit Tengah / Kembali Selektif">
+          <span>⚙️ Mobilize All</span>
+        </button>
+
+        <div class="hud-divider"></div>
+
+        <!-- Mode Kamera: Isometric vs First-Person Visor -->
+        <button class="hud-btn active" id="btn-cam-iso" title="Kamera Isometric Orbit">
+          <span>🛸 Isometric</span>
+        </button>
+        <button class="hud-btn" id="btn-cam-fps" title="Mode First-Person dari Helm Astronot Commander Diaz">
+          <span>👨‍🚀 FPS Visor</span>
+        </button>
+        <button class="hud-btn" id="btn-cam-reset" title="Reset Sudut Pandang Kamera">
+          <span>🎯 Reset</span>
+        </button>
+
+        <div class="hud-divider"></div>
+
+        <!-- Siklus Atmosfer Luar Angkasa -->
+        <div class="time-pill-group" role="group" aria-label="Atmosfer Langit">
+          <button class="time-btn active" data-time="night" title="Malam Luar Angkasa (Deep Space)">🌌 Night</button>
+          <button class="time-btn" data-time="sunset" title="Senja Kosmik (Sunset)">🌅 Sunset</button>
+          <button class="time-btn" data-time="day" title="Siang Cerah (Day)">☀️ Day</button>
+          <button class="time-btn" data-time="dawn" title="Fajar (Dawn)">🌄 Dawn</button>
+          <button class="time-btn" data-time="auto" title="Otomatis Ikuti Jam Komputer">🕒 Auto</button>
+        </div>
+      </div>
+
+      <div class="titlebar-drag-region"></div>
+
+      <!-- Header Right: Terminal White-Gold Toggle & Window Controls -->
+      <div class="header-right-actions">
+        <button class="terminal-toggle-btn" id="btn-toggle-modal" title="Buka/Tutup Terminal (Ctrl+`)">
+          <svg class="term-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"></polyline>
+            <line x1="12" y1="19" x2="20" y2="19"></line>
+          </svg>
+          <span class="toggle-text">Terminal</span>
+          <span class="hotkey-pill">Ctrl+`</span>
+        </button>
+
+        <div class="window-controls">
+          <button class="win-btn" id="win-minimize" title="Minimize">
+            <svg viewBox="0 0 10 10" width="10" height="10">
+              <path d="M1 5.5h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+          <button class="win-btn" id="win-maximize" title="Maximize">
+            <svg viewBox="0 0 10 10" width="10" height="10">
+              <rect x="1.5" y="1.5" width="7" height="7" fill="none" stroke="currentColor" stroke-width="1.2"/>
+            </svg>
+          </button>
+          <button class="win-btn close-btn" id="win-close" title="Close">
+            <svg viewBox="0 0 10 10" width="10" height="10">
+              <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ========================================================
+         MAIN 3D OUTER-SPACE OFFICE STAGE
+         ======================================================== -->
+    <main class="office-stage">
+      <!-- Three.js WebGL Canvas Container -->
+      <div class="office-canvas-container" id="office-canvas-container"></div>
+
+      <!-- Quick Zone Navigation Pills (Top Center) -->
+      <nav class="zone-quickbar" id="zone-quickbar">
+        <button class="zone-pill" data-zone="ceo">👑 Ruang CEO</button>
+        <button class="zone-pill" data-zone="workbench">⚙️ Meja Rakit</button>
+        <button class="zone-pill" data-zone="engineering">💻 Engineering</button>
+        <button class="zone-pill" data-zone="security">🛡️ Security SOC</button>
+        <button class="zone-pill" data-zone="marketing">📈 Marketing</button>
+        <button class="zone-pill" data-zone="server">🗄️ Server Wings</button>
+        <button class="zone-pill" data-zone="mailbox">📬 Gmail Hub</button>
+        <button class="zone-pill" data-zone="lounge">☕ Sky Lounge</button>
+      </nav>
+
+      <!-- ========================================================
+           ASTRONAUT FIRST-PERSON VISOR HUD OVERLAY
+           ======================================================== -->
+      <div class="fps-visor-hud hidden" id="fps-visor-hud">
+        <div class="fps-visor-frame"></div>
+
+        <div class="fps-top-bar">
+          <div class="fps-telemetry-pill">
+            <span>👨‍🚀 CEO SUIT: COMMANDER DIAZ</span>
+            <span>•</span>
+            <span class="fps-online">9 CUSTOM AGENTS ONLINE</span>
+            <span>•</span>
+            <span>JETPACK: ONLINE</span>
+          </div>
+
+          <button class="fps-exit-btn" id="btn-exit-fps">
+            Keluar Mode FPS (Kembali ke Iso)
+          </button>
+        </div>
+
+        <div class="fps-center-reticle">
+          <div class="reticle-ring">
+            <div class="reticle-dot"></div>
+          </div>
+          <div class="fps-lock-prompt" id="fps-lock-prompt">
+            🖱️ Klik di tengah layar untuk mengunci arah pandangan helm (Tekan ESC untuk lepas kursor)
+          </div>
+        </div>
+
+        <div class="fps-bottom-controls">
+          [W, A, S, D] Jalan Keliling Stasiun • [SPACE] Jetpack Jump • [SHIFT] Sprint • [MOUSE] Tengok
+        </div>
+      </div>
+
+      <!-- ========================================================
+           LEFT DRAWER: AGENT ROSTER (1 MAIN + 8 SUB-AGENTS)
+           ======================================================== -->
+      <aside class="agent-roster-drawer hidden" id="agent-roster-drawer">
+        <div class="roster-header">
+          <div class="roster-title-wrap">
+            <div class="roster-icon-box">🤖</div>
+            <div>
+              <h2>Custom Agents <span class="roster-count">9</span></h2>
+              <p>1 Main Orchestrator + 8 Sub-Agents (.agents/agents)</p>
+            </div>
+          </div>
+          <button class="drawer-close-btn" id="btn-close-roster" title="Tutup Roster">&times;</button>
+        </div>
+
+        <div class="roster-search-box">
+          <input type="text" id="roster-search-input" placeholder="Cari agen, codename, tools, divisi..." />
+          <div class="roster-filter-tabs" id="roster-filter-tabs">
+            <button class="filter-tab active" data-div="all">Semua (9)</button>
+            <button class="filter-tab" data-div="main">Main Agent (1)</button>
+            <button class="filter-tab" data-div="freelance-hackathon">Freelance &amp; Hackathon (5)</button>
+            <button class="filter-tab" data-div="game-dev">Game Dev (3)</button>
+          </div>
+        </div>
+
+        <div class="roster-list" id="roster-list">
+          <!-- Diisi secara dinamis dari AGENTS_ROSTER -->
+        </div>
+      </aside>
+
+      <!-- ========================================================
+           RIGHT CARD: AGENT INSPECTOR CARD (DETAIL AGEN 3D)
+           ======================================================== -->
+      <aside class="agent-inspector-card hidden" id="agent-inspector-card">
+        <div class="insp-division-banner" id="agent-insp-banner">
+          <div class="insp-div-left">
+            <span class="insp-div-dot" id="agent-insp-dot"></span>
+            <span class="insp-div-name" id="agent-insp-div">DIVISION</span>
+          </div>
+          <div class="insp-div-actions">
+            <button class="insp-mini-btn" id="btn-focus-agent-3d" title="Fokuskan Kamera 3D ke Agen">🎯 Fokus</button>
+            <button class="insp-close-btn" id="btn-close-agent-insp" title="Tutup Detail">&times;</button>
+          </div>
+        </div>
+
+        <div class="insp-identity">
+          <div class="insp-avatar-box" id="agent-insp-avatar">
+            <span class="insp-avatar-emoji" id="agent-insp-emoji">🤖</span>
+            <span class="insp-avatar-type" id="agent-insp-type">ANDROID</span>
+          </div>
+          <div class="insp-identity-meta">
+            <div class="insp-name-row">
+              <h3 id="agent-insp-name">Agent Name</h3>
+              <span class="insp-codename" id="agent-insp-codename">NEXUS-0</span>
+            </div>
+            <p class="insp-role" id="agent-insp-role">Role Title</p>
+            <div class="insp-badges-row">
+              <span class="insp-badge status" id="agent-insp-status">ONLINE</span>
+              <span class="insp-badge runtime" id="agent-insp-model">OPUS</span>
+              <span class="insp-badge zone" id="agent-insp-zone">📍 Zone</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="insp-body">
+          <div class="insp-section">
+            <span class="insp-sec-label">🎯 MISI UTAMA</span>
+            <div class="insp-mission-box" id="agent-insp-mission"></div>
+            <p class="insp-desc-text" id="agent-insp-desc"></p>
+          </div>
+
+          <div class="insp-section">
+            <span class="insp-sec-label">🛠️ TOOLS & INTEGRASI</span>
+            <div class="insp-chips" id="agent-insp-tools"></div>
+          </div>
+
+          <div class="insp-grid-2">
+            <div class="insp-io-box">
+              <span class="insp-sec-label">📥 INPUTS</span>
+              <ul id="agent-insp-inputs"></ul>
+            </div>
+            <div class="insp-io-box">
+              <span class="insp-sec-label">📤 OUTPUTS</span>
+              <ul id="agent-insp-outputs"></ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="insp-footer">
+          <button class="btn-work-toggle" id="btn-toggle-agent-work">
+            <span>⚡ Suruh Kerja ke Meja Tengah</span>
+          </button>
+          <button class="btn-open-agent-term" id="btn-open-agent-term">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 17 10 11 4 5"></polyline>
+              <line x1="12" y1="19" x2="20" y2="19"></line>
+            </svg>
+            <span>Buka Terminal Agen Ini</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ========================================================
+           ZONE DETAIL POPUP CARD (SAAT RUANGAN DIKLIK)
+           ======================================================== -->
+      <aside class="zone-inspector-card hidden" id="zone-inspector-card">
+        <div class="zone-card-header">
+          <div>
+            <span class="zone-card-sub" id="zone-insp-sub">SECTOR</span>
+            <h3 id="zone-insp-title">Zone Title</h3>
+          </div>
+          <button class="insp-close-btn" id="btn-close-zone-insp">&times;</button>
+        </div>
+        <p class="zone-card-desc" id="zone-insp-desc"></p>
+        <div class="zone-card-actions">
+          <button class="btn-open-agent-term" id="btn-open-zone-term">
+            <span>&gt;_ Buka Terminal Sektor Ini</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- ========================================================
+           BOTTOM HOVER TOOLTIP & LIVE STATUS BAR
+           ======================================================== -->
+      <div class="hover-tooltip-pill hidden" id="hover-tooltip-pill"></div>
+
+      <div class="bottom-status-pill" id="bottom-status-pill">
+        <span class="status-astro">
+          👑 <strong>CEO Diaz:</strong> Gunakan <code>WASD</code> untuk jalan • <code>SPACE</code> Jetpack Jump • <code>SHIFT</code> Sprint
+        </span>
+        <span class="status-sep">|</span>
+        <span class="status-agents" id="status-agents-text">
+          🤖 <strong>9 Custom Agents Terhubung:</strong> Agen yang diberi perintah langsung ke Meja Tengah
+        </span>
+      </div>
+    </main>
+
+    <!-- ========================================================
+         TERMINAL MODAL OVERLAY (WHITE-GOLD THEME)
+         ======================================================== -->
+    <div class="terminal-modal-overlay" id="terminal-modal-overlay">
+      <div class="terminal-modal-container" id="terminal-modal-container">
+        <div class="modal-titlebar">
+          <div class="modal-tabs-wrapper">
+            <div class="tabs-list" id="tabs-list"></div>
+            <button class="btn-new-tab" id="btn-new-tab" title="Tambah Tab (Ctrl+Shift+T)">
+              <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor">
+                <path d="M8 2a.75.75 0 0 1 .75.75v4.5h4.5a.75.75 0 0 1 0 1.5h-4.5v4.5a.75.75 0 0 1-1.5 0v-4.5h-4.5a.75.75 0 0 1 0-1.5h4.5v-4.5A.75.75 0 0 1 8 2z"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="modal-drag-spacer"></div>
+
+          <div class="modal-actions">
+            <button class="modal-action-btn" id="modal-btn-clear" title="Bersihkan Layar">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M3 6h18"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path>
+              </svg>
+            </button>
+            <button class="modal-action-btn close-modal-btn" id="btn-close-modal" title="Tutup Terminal Modal">
+              <svg viewBox="0 0 10 10" width="10" height="10">
+                <path d="M1.5 1.5l7 7M8.5 1.5l-7 7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="modal-terminal-viewport" id="terminal-viewport"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="vendor/xterm/xterm.js"></script>
+  <script src="vendor/xterm/addon-fit.js"></script>
+  <script type="module" src="renderer.js"></script>
+</body>
+</html>
